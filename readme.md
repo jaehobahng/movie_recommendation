@@ -25,6 +25,15 @@ $ export IMAGE_API='your_omdb_api_key'
 
 ---
 
+## Dataset
+
+To use this recommender system, you need the movie dataset. Download the dataset from [this Kaggle link](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset?resource=download) and place it in the following directory:
+
+```bash
+/data/kaggle_movies/
+```
+
+
 ## Features
 - **User-based Collaborative Filtering**: Recommends movies based on the preferences of similar users.
 - **Item-based Collaborative Filtering**: Finds movies similar to those a user has rated highly.
@@ -77,6 +86,12 @@ Where:
 - \(t_{min}\) and \(t_{max}\) are the minimum and maximum timestamps in the dataset.
 
 ## Usage
+
+### Example
+
+Please refer [to this notebook](./movie_recommendation.ipynb) for output examples and specific use-cases.
+
+
 ### Read Data
 ```python
 import os
