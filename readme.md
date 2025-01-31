@@ -50,10 +50,10 @@ Collaborative Filtering utilizes the preferences of multiple users to generate r
 - **Item-Based Filtering**: Computes similarity between items (movies) using the same distance metrics.
 
 **Cosine Similarity**:
-\[
+$
 \text{cosine}(A, B) = \frac{A \cdot B}{||A|| \times ||B||}
-\]
-Where \(A\) and \(B\) are vector representations of user/movie interactions.
+$
+Where $A$ and $B$ are vector representations of user/movie interactions.
 
 ### 2. Genre-Based Recommendations
 Genre similarity is computed using one-hot encoding of genres and cosine similarity:
@@ -62,14 +62,14 @@ Genre similarity is computed using one-hot encoding of genres and cosine similar
 
 ### 3. Bayesian Mean Rating
 Bayesian averaging adjusts movie ratings by considering both the average rating and the number of ratings:
-\[
+$
 \text{Bayesian Mean} = \frac{\sum_{i=1}^{n} R_i + C \cdot \mu}{n + C}
-\]
+$
 Where:
-- \(R_i\) is the rating for movie \(i\).
-- \(n\) is the number of ratings for the movie.
-- \(\mu\) is the global average rating.
-- \(C\) is a constant representing the average number of ratings across all movies.
+- $R_i$ is the rating for movie $i$.
+- $n$ is the number of ratings for the movie.
+- $\mu$ is the global average rating.
+- $C$ is a constant representing the average number of ratings across all movies.
 
 ### 4. Keyword-Based Similarity
 This method uses NLP to recommend movies with similar themes:
@@ -78,12 +78,12 @@ This method uses NLP to recommend movies with similar themes:
 
 ### 5. Time-weighted Bayesian Rating
 Adjusts the Bayesian Mean by giving more weight to recent ratings using an exponential decay function:
-\[
+$
 \text{time\_weight} = e^{\frac{t - t_{min}}{t_{max} - t_{min}}}
-\]
+$
 Where:
-- \(t\) is the timestamp of the rating.
-- \(t_{min}\) and \(t_{max}\) are the minimum and maximum timestamps in the dataset.
+- $t$ is the timestamp of the rating.
+- $t_{min}$ and $t_{max}$ are the minimum and maximum timestamps in the dataset.
 
 ## Usage
 
