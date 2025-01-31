@@ -3,6 +3,28 @@
 ## Overview
 This package implements a versatile movie recommendation system leveraging various recommendation algorithms, including collaborative filtering, genre-based similarity, keyword-based similarity, and Bayesian mean rating methods. The package is designed to provide personalized movie recommendations based on user preferences, movie metadata, and collaborative interactions among users.
 
+---
+
+## Installation
+
+First, clone the repository and navigate into the project directory:
+```bash
+$ git clone https://github.com/yourusername/movie-recommender.git
+$ cd movie-recommender
+```
+
+Install the required packages:
+```bash
+$ pip install -r requirements.txt
+```
+
+Ensure you have an OMDb API key and add it to your environment variables:
+```bash
+$ export IMAGE_API='your_omdb_api_key'
+```
+
+---
+
 ## Features
 - **User-based Collaborative Filtering**: Recommends movies based on the preferences of similar users.
 - **Item-based Collaborative Filtering**: Finds movies similar to those a user has rated highly.
@@ -54,52 +76,108 @@ Where:
 - \(t\) is the timestamp of the rating.
 - \(t_{min}\) and \(t_{max}\) are the minimum and maximum timestamps in the dataset.
 
-## Installation
-Install the package using pip:
-```
-pip install movie-recommendation-system
-```
-
 ## Usage
-### Initialization
+### Read Data
 ```python
-from movie_recommendation_system import recommendation
+import os
+import pandas as pd
+from src.recommend.utils.read import read_files
 
-# Instantiate the recommendation class
-rec = recommendation(user=1, number=5, meta=meta_df, ratings=ratings_df)
+folder_path = "./data/kaggle_movies"
+dataframes = read_files(folder_path)
+
+credits = dataframes['credits']
+keywords = dataframes['keywords']
+links = dataframes['links']
+links_small = dataframes['links_small']
+movies_metadata = dataframes['movies_metadata']
+ratings = dataframes['ratings']
+ratings_small = dataframes['ratings_small']
+
+movies_metadata['id'] = pd.to_numeric(movies_metadata['id'], errors='coerce')
+meta = movies_metadata.merge(links, left_on='id', right_on='tmdbId', how='left')
+meta = meta[~meta['id'].isnull()]
+```
+### Initialize Model
+- **Initialize Recommendation for User1 with 20 movies**:
+```python
+from src.recommend.rec import recommendation
+
+# user 1, 20 recommendations, metadata, ratings data
+rec = recommendation(1, 20, meta, ratings)
 ```
 
 ### Recommendation Methods
 - **Get User's Recently Watched Movies**:
 ```python
-rec.user_watched(top_n=5)
-```
-
-- **Find Similar Movies**:
-```python
-rec.find_similar_movies(movie_id=10, X=rec.create_X(), metric='cosine')
+watched_movies = rec.user_watched(20)
+meta[meta['movieId'].isin(watched_movies)]['title']
 ```
 
 - **Genre-Based Recommendations**:
 ```python
-cosine_sim, movie_mapper, mapper_movie = rec.genre_matrix()
-rec.genre_rec(cosine_sim, movie_mapper, mapper_movie, movie=10)
+genre_similarity_matrix, movie_mapper, mapper_movie = rec.genre_matrix()
+
+import random
+from src.recommend.utils.image import image_url, show_image
+
+genre_recommendation = []
+for i in watched_movies:
+    similar_movies = rec.genre_rec(genre_similarity_matrix, movie_mapper, mapper_movie, i)
+    genre_recommendation.extend(similar_movies)
+
+random.shuffle(genre_recommendation)
+
+images = image_url(genre_recommendation[:10])
+show_image(images)
+```
+
+- **Users with Similar Taste Recommendations**:
+```python
+X = rec.create_X()
+
+similar_recommend = rec.similar_user_movies(X)
+bayesian_mean_df = rec.nb_mean(similar_recommend)
+movie_list = bayesian_mean_df['imdb_id'].values
+
+images = image_url(movie_list[:10])
+show_image(images)
 ```
 
 - **Keyword-Based Recommendations**:
 ```python
-keyword_matrix = rec.keyword_similarity(keywords_df)
-rec.keyword_rec(keyword_matrix, keywords_df, movie=10)
+keyword_similarity_matrix = rec.keyword_similarity(keywords)
+
+keyword_recommendation = []
+for i in watched_movies:
+    similar_movies = rec.keyword_rec(keyword_similarity_matrix, keywords, i)
+    keyword_recommendation.extend(similar_movies)
+
+random.shuffle(keyword_recommendation)
+
+images = image_url(keyword_recommendation[:10])
+show_image(images)
+```
+
+- **Newly Released Movies**:
+```python
+test = rec.new_releases('2017-07-01')
+images = image_url(test)
+show_image(images)
 ```
 
 - **Top All-time Movies**:
 ```python
-rec.best_alltime()
+images_list = rec.best_alltime()
+images = image_url(images_list)
+show_image(images)
 ```
 
 - **Trending Movies**:
 ```python
-rec.currently_trending(date='2024-01-01')
+movie_list = rec.currently_trending('2017-07-01')
+images = image_url(movie_list)
+show_image(images)
 ```
 
 ## Dependencies
